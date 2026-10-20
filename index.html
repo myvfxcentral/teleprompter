@@ -349,7 +349,7 @@
   function end() {
     stopRec(); cancelAnimationFrame(raf);
     $('prompter').style.display = 'none'; $('setup').style.display = 'flex';
-    if (stream) { cancelAnimationFrame(meterRaf); meterLoop(); }
+    closeMic();
   }
   function restart() { pos = anchor = 0; scrollTop = 0; lastCur = -1; hist = []; spans.forEach(s => s.className = ''); }
   function togglePause() { paused = !paused; $('pause').textContent = paused ? 'Resume (Space)' : 'Pause (Space)'; }
@@ -375,7 +375,7 @@
   async function setMode(voice) {
     if (voice && !stream && !(await openMic())) return;
     followVoice = voice;
-    if (voice) { if ($('usesr').checked && !rec) startRec(); } else stopRec();
+    if (voice) { if ($('usesr').checked && !rec) startRec(); } else { stopRec(); closeMic(); }
     syncUI();
   }
   function syncSetup() {
@@ -423,6 +423,19 @@
   // ---- mic boost ----
   $('boost').oninput = () => { if (gainNode) gainNode.gain.value = +$('boost').value; $('boostHud').value = $('boost').value; $('boostv').textContent = $('boost').value; store.set({ boost: $('boost').value }); };
   $('boostHud').oninput = () => { $('boost').value = $('boostHud').value; $('boost').oninput(); };
+
+  // ---- release the microphone whenever the app isn't actively in use ----
+  let reopen = false;
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'hidden') {
+      reopen = !!stream && followVoice && $('prompter').style.display === 'block';
+      stopRec(); closeMic();
+    } else if (reopen) {
+      reopen = false;
+      if (await openMic() && $('usesr').checked) startRec();
+    }
+  });
+  addEventListener('pagehide', () => { reopen = false; stopRec(); closeMic(); });
 
   $('start').onclick = begin;
   $('micTest').onclick = openMic;

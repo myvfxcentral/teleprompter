@@ -18,6 +18,8 @@
   #setup { padding-left:max(24px, env(safe-area-inset-left, 0px)); padding-right:max(24px, env(safe-area-inset-right, 0px)); }
   :root { --bg:#000; --fg:#e8e8e8; --dim:#6b6b6b; --hi:#ffd54a; --panel:#161616; }
   * { box-sizing: border-box; }
+  [hidden] { display:none !important; }
+  #hud input[type=range] { vertical-align:middle; }
   html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:Segoe UI, system-ui, sans-serif; }
   #setup { max-width:900px; margin:0 auto; padding:24px; display:flex; flex-direction:column; height:100%; gap:12px; }
   #setup h1 { margin:0; font-size:22px; }
@@ -56,21 +58,22 @@
   <p>Paste your script, pick your microphone, and press Start. It scrolls while you speak, at the pace you read, and stops when you stop. Use Edge or Chrome.</p>
   <textarea id="script" placeholder="Paste your script here..."></textarea>
 
-  <div class="row">
+  <div class="row" id="microw">
     <label>Microphone <select id="mic"><option value="">Default</option></select></label>
     <button id="micTest" class="sec">Enable / test mic</button>
     <div class="meter" id="meterS"><div class="bar"></div><div class="thr"></div></div>
     <span id="micmsg"></span>
   </div>
   <div class="row">
-    <label>Sensitivity <input id="sens" type="range" min="1" max="10" value="5"></label>
+    <label id="sensl">Sensitivity <input id="sens" type="range" min="1" max="10" value="5"></label>
     <label>Font size <input id="fs" type="range" min="24" max="140" value="64"></label>
     <label><input id="mirror" type="checkbox"> Mirror</label>
-    <label><input id="usesr" type="checkbox" checked> Also match words (uses system default mic)</label>
+    <label id="srlabel"><input id="usesr" type="checkbox" checked> Also match words (uses system default mic)</label>
   </div>
   <div class="row">
-    <label>Starting speed (WPM) <input id="wpm" type="number" min="40" max="300" value="150" style="width:70px"></label>
-    <label><input id="usemic" type="checkbox" checked> Follow my voice (off = constant speed)</label>
+    <label>Scroll mode <select id="mode"><option value="voice">Follow my voice</option><option value="auto">Auto-scroll (constant speed)</option></select></label>
+    <label>Speed <input id="wpm" type="range" min="40" max="300" step="5" value="150"> <b id="wpmv">150</b> WPM</label>
+    
     <button id="start">Start</button>
   </div>
   <p>The meter turns yellow and the red line is the trigger level: if it never goes yellow while you talk, raise Sensitivity.</p>
@@ -84,6 +87,8 @@
     <button id="pause" class="sec">Pause (Space)</button>
     <button id="restart" class="sec">Restart (Home)</button>
     <span>Size <input id="fs2" type="range" min="24" max="140"></span>
+    <button id="modeBtn" class="sec">Mode</button>
+    <span>Speed <input id="wpmHud" type="range" min="40" max="300" step="5"> <b id="wpmHv"></b> WPM</span>
     <button id="up" class="sec">&uarr; Back</button>
     <button id="down" class="sec">&darr; Skip</button>
     <button id="slower" class="sec">&minus; Slower</button>
@@ -104,6 +109,8 @@
   const saved = store.get();
   if (saved.script) $('script').value = saved.script;
   if (saved.sens) $('sens').value = saved.sens;
+  if (saved.mode) $('mode').value = saved.mode;
+  if (saved.wpm) $('wpm').value = saved.wpm;
 
   // ---------- state ----------
   let words = [], norm = [], spans = [];
@@ -294,6 +301,8 @@
       pos = clamp(pos, 0, words.length - 1);
       if (now - lastMatch > 4000) anchor = Math.floor(pos);
     }
+    if (document.activeElement !== $('wpmHud')) $('wpmHud').value = Math.round(wpm);
+    $('wpmHv').textContent = Math.round(wpm);
     updateHighlight();
     const i = Math.floor(pos), f = pos - i;
     const a = spans[i], b = spans[Math.min(i + 1, spans.length - 1)];
@@ -317,15 +326,15 @@
   async function begin() {
     const text = $('script').value.trim();
     if (!text) { $('micmsg').textContent = 'Paste a script first.'; return; }
-    store.set({ script: text, sens: $('sens').value, mic: $('mic').value });
-    followVoice = $('usemic').checked; mirror = $('mirror').checked;
+    store.set({ script: text, sens: $('sens').value, mic: $('mic').value, mode: $('mode').value, wpm: $('wpm').value });
+    followVoice = $('mode').value === 'voice'; mirror = $('mirror').checked;
     if (followVoice && !(await openMic())) return;        // stay on setup so the error is visible
     build(text); setFont(+$('fs').value);
     wpm = +$('wpm').value || 150;
     $('text').style.transformOrigin = 'center top';
     $('setup').style.display = 'none'; $('prompter').style.display = 'block';
     pos = anchor = 0; scrollTop = 0; lastCur = -1; hist = []; peaks = []; lastMatch = 0; paused = false; srStatus = '';
-    $('meterH').style.display = followVoice ? '' : 'none';
+    syncUI();
     if (followVoice && $('usesr').checked) startRec();
     cancelAnimationFrame(raf); lastT = performance.now(); raf = requestAnimationFrame(frame);
     flashHud();
@@ -351,6 +360,26 @@
   setInterval(() => { if (!wake || wake.released) keepAwake(); }, 4000);
   document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
 
+  function syncUI() {
+    $('modeBtn').textContent = followVoice ? 'Mode: Voice' : 'Mode: Auto-scroll';
+    $('meterH').style.display = followVoice ? '' : 'none';
+  }
+  async function setMode(voice) {
+    if (voice && !stream && !(await openMic())) return;
+    followVoice = voice;
+    if (voice) { if ($('usesr').checked && !rec) startRec(); } else stopRec();
+    syncUI();
+  }
+  function syncSetup() {
+    const a = $('mode').value === 'auto';
+    $('microw').hidden = a; $('sensl').hidden = a; $('srlabel').hidden = a;
+    $('wpmv').textContent = $('wpm').value;
+  }
+  $('mode').onchange = syncSetup;
+  $('wpm').oninput = syncSetup;
+  $('modeBtn').onclick = () => setMode(!followVoice);
+  $('wpmHud').oninput = e => { wpm = +e.target.value; };
+
   $('start').onclick = begin;
   $('micTest').onclick = openMic;
   $('mic').onchange = () => { store.set({ mic: $('mic').value }); if (stream) openMic(); };
@@ -375,6 +404,7 @@
   // populate mic names if permission was granted previously
   if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) listMics().catch(() => {});
   drawMeters();
+  syncSetup();
 })();
 </script>
 </body>

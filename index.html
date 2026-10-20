@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Voice-Follow Teleprompter</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,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">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Teleprompter">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="theme-color" content="#000000">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<style>
+  #hud button { min-height:40px; }
+  @media (pointer:coarse) { #hud { padding-top:calc(8px + env(safe-area-inset-top, 0px)); } #hud span.kbd { display:none; } }
+  #setup { padding-left:max(24px, env(safe-area-inset-left, 0px)); padding-right:max(24px, env(safe-area-inset-right, 0px)); }
+  :root { --bg:#000; --fg:#e8e8e8; --dim:#6b6b6b; --hi:#ffd54a; --panel:#161616; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--fg); font-family:Segoe UI, system-ui, sans-serif; }
+  #setup { max-width:900px; margin:0 auto; padding:24px; display:flex; flex-direction:column; height:100%; gap:12px; }
+  #setup h1 { margin:0; font-size:22px; }
+  #setup p { margin:0; color:#aaa; font-size:14px; }
+  textarea { flex:1; min-height:120px; background:var(--panel); color:var(--fg); border:1px solid #333; border-radius:8px; padding:14px; font-size:16px; resize:none; }
+  .row { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  label { font-size:14px; color:#bbb; display:flex; gap:8px; align-items:center; }
+  select { background:var(--panel); color:var(--fg); border:1px solid #333; border-radius:6px; padding:6px; max-width:340px; }
+  button { background:#2a6df4; color:#fff; border:0; border-radius:8px; padding:10px 18px; font-size:15px; cursor:pointer; }
+  button.sec { background:#333; }
+  .meter { position:relative; width:220px; height:14px; background:#222; border-radius:7px; overflow:hidden; }
+  .meter .bar { position:absolute; left:0; top:0; bottom:0; width:0; background:#3ddc84; }
+  .meter .thr { position:absolute; top:0; bottom:0; width:2px; background:#ff5252; }
+  .meter.hot .bar { background:#ffd54a; }
+  #micmsg { font-size:13px; color:#ff8a80; }
+  #prompter { display:none; position:fixed; inset:0; }
+  #view { position:absolute; inset:0; overflow:hidden; }
+  #text { padding:40vh 8vw 60vh; line-height:1.5; font-weight:600; text-align:left; will-change:transform; }
+  #text span { color:var(--dim); transition:color .2s; }
+  #text span.read { color:var(--fg); }
+  #text span.cur { color:var(--hi); }
+  #guide { position:absolute; left:0; right:0; top:35%; height:0; border-top:1px dashed #ffffff22; pointer-events:none; }
+  #hud { position:absolute; top:0; left:0; right:0; padding:8px 12px; display:flex; gap:12px; align-items:center;
+         background:linear-gradient(#000d,#0000); opacity:0; transition:opacity .3s; font-size:13px; color:#ccc; flex-wrap:wrap; }
+  #hud.show { opacity:1; }
+  #hud button { padding:6px 12px; font-size:13px; }
+  #status { margin-left:auto; display:flex; gap:8px; align-items:center; }
+  #hud .meter { width:120px; height:10px; }
+  input[type=range] { width:110px; }
+</style>
+</head>
+<body>
+
+<div id="setup">
+  <h1>Voice-Follow Teleprompter</h1>
+  <p>Paste your script, pick your microphone, and press Start. It scrolls while you speak, at the pace you read, and stops when you stop. Use Edge or Chrome.</p>
+  <textarea id="script" placeholder="Paste your script here..."></textarea>
+
+  <div class="row">
+    <label>Microphone <select id="mic"><option value="">Default</option></select></label>
+    <button id="micTest" class="sec">Enable / test mic</button>
+    <div class="meter" id="meterS"><div class="bar"></div><div class="thr"></div></div>
+    <span id="micmsg"></span>
+  </div>
+  <div class="row">
+    <label>Sensitivity <input id="sens" type="range" min="1" max="10" value="5"></label>
+    <label>Font size <input id="fs" type="range" min="24" max="140" value="64"></label>
+    <label><input id="mirror" type="checkbox"> Mirror</label>
+    <label><input id="usesr" type="checkbox" checked> Also match words (uses system default mic)</label>
+  </div>
+  <div class="row">
+    <label>Starting speed (WPM) <input id="wpm" type="number" min="40" max="300" value="150" style="width:70px"></label>
+    <label><input id="usemic" type="checkbox" checked> Follow my voice (off = constant speed)</label>
+    <button id="start">Start</button>
+  </div>
+  <p>The meter turns yellow and the red line is the trigger level: if it never goes yellow while you talk, raise Sensitivity.</p>
+</div>
+
+<div id="prompter">
+  <div id="view"><div id="text"></div></div>
+  <div id="guide"></div>
+  <div id="hud">
+    <button id="back" class="sec">&larr; Edit</button>
+    <button id="pause" class="sec">Pause (Space)</button>
+    <button id="restart" class="sec">Restart (Home)</button>
+    <span>Size <input id="fs2" type="range" min="24" max="140"></span>
+    <button id="up" class="sec">&uarr; Back</button>
+    <button id="down" class="sec">&darr; Skip</button>
+    <button id="slower" class="sec">&minus; Slower</button>
+    <button id="faster" class="sec">+ Faster</button>
+    <span class="kbd">&uarr;/&darr; nudge &middot; +/- speed &middot; F fullscreen</span>
+    <span id="status"><div class="meter" id="meterH"><div class="bar"></div><div class="thr"></div></div><span id="stxt"></span></span>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const SK = 'teleprompter.v2';
+  const store = {
+    get() { try { return JSON.parse(localStorage.getItem(SK)) || {}; } catch { return {}; } },
+    set(o) { try { localStorage.setItem(SK, JSON.stringify({ ...store.get(), ...o })); } catch {} }
+  };
+  const saved = store.get();
+  if (saved.script) $('script').value = saved.script;
+  if (saved.sens) $('sens').value = saved.sens;
+
+  // ---------- state ----------
+  let words = [], norm = [], spans = [];
+  let pos = 0, anchor = 0, wpm = 150;
+  let paused = false, followVoice = true, mirror = false;
+  let lastCur = -1, scrollTop = 0, lastT = 0, raf = 0;
+
+  // ---------- microphone / level meter ----------
+  let stream = null, actx = null, analyser = null, buf = null;
+  let level = 0, floor = 0.003, speaking = false, lastLoud = 0;
+  let peaks = [], envPrev = 0, envAvg = 0, lastPeak = 0, speakTime = 0;
+  let meterRaf = 0;
+
+  const threshold = () => Math.max(0.05 / (+$('sens').value), floor * 2.5);
+
+  async function listMics() {
+    const devs = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === 'audioinput');
+    const sel = $('mic'), want = sel.value || saved.mic || '';
+    sel.innerHTML = '';
+    devs.forEach((d, i) => {
+      const o = document.createElement('option');
+      o.value = d.deviceId; o.textContent = d.label || ('Microphone ' + (i + 1));
+      sel.appendChild(o);
+    });
+    if ([...sel.options].some(o => o.value === want)) sel.value = want;
+  }
+
+  async function openMic() {
+    closeMic();
+    $('micmsg').textContent = '';
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { $('micmsg').textContent = 'Microphone not supported in this browser.'; return false; }
+    try {
+      const id = $('mic').value;
+      stream = await navigator.mediaDevices.getUserMedia({
+        audio: { deviceId: id ? { exact: id } : undefined, echoCancellation: false, noiseSuppression: false, autoGainControl: true }
+      });
+    } catch (e) {
+      $('micmsg').textContent = 'Mic error: ' + (e.name === 'NotAllowedError' ? 'permission denied (click the lock icon in the address bar and allow the microphone)' : e.message);
+      return false;
+    }
+    await listMics();               // labels are available now
+    const track = stream.getAudioTracks()[0];
+    const sid = track.getSettings().deviceId;
+    if (sid && [...$('mic').options].some(o => o.value === sid)) $('mic').value = sid;
+    store.set({ mic: $('mic').value });
+    actx = new (window.AudioContext || window.webkitAudioContext)();
+    if (actx.state === 'suspended') await actx.resume();
+    const src = actx.createMediaStreamSource(stream);
+    analyser = actx.createAnalyser(); analyser.fftSize = 1024;
+    src.connect(analyser);
+    buf = new Float32Array(analyser.fftSize);
+    cancelAnimationFrame(meterRaf); meterLoop();
+    return true;
+  }
+  function closeMic() {
+    cancelAnimationFrame(meterRaf);
+    if (stream) stream.getTracks().forEach(t => t.stop());
+    if (actx) actx.close().catch(() => {});
+    stream = actx = analyser = null; level = 0; speaking = false; drawMeters();
+  }
+
+  function sampleAudio(now) {
+    if (!analyser) return;
+    analyser.getFloatTimeDomainData(buf);
+    let s = 0; for (let i = 0; i < buf.length; i++) s += buf[i] * buf[i];
+    const rms = Math.sqrt(s / buf.length);
+    level += (rms - level) * 0.4;                       // fast smoothing for meter
+    const thr = threshold();
+    // noise floor: track quiet moments only
+    if (level < thr) floor += (level - floor) * 0.01;
+    if (level > thr) { lastLoud = now; }
+    speaking = now - lastLoud < 350;
+    // syllable-ish peak detection on the envelope (for pace)
+    envAvg += (level - envAvg) * 0.08;
+    if (level > envAvg * 1.25 && level > thr && envPrev <= envAvg * 1.25 && now - lastPeak > 110) {
+      peaks.push(now); lastPeak = now;
+    }
+    envPrev = level;
+  }
+  function drawMeters() {
+    const thr = threshold();
+    const w = Math.min(100, Math.sqrt(level) * 220);                 // perceptual-ish scaling
+    const tx = Math.min(100, Math.sqrt(thr) * 220);
+    for (const id of ['meterS', 'meterH']) {
+      const m = $(id); if (!m) continue;
+      m.firstElementChild.style.width = w + '%';
+      m.lastElementChild.style.left = tx + '%';
+      m.classList.toggle('hot', level > thr);
+    }
+  }
+  function meterLoop() {
+    meterRaf = requestAnimationFrame(meterLoop);
+    sampleAudio(performance.now());
+    drawMeters();
+  }
+
+  // ---------- script ----------
+  const normalize = w => w.toLowerCase().replace(/[^\p{L}\p{N}']/gu, '');
+  function build(text) {
+    const box = $('text'); box.innerHTML = '';
+    words = text.split(/\s+/).filter(Boolean);
+    norm = words.map(normalize);
+    spans = words.map(w => { const s = document.createElement('span'); s.textContent = w + ' '; box.appendChild(s); return s; });
+  }
+  function setFont(px) { $('text').style.fontSize = px + 'px'; $('fs').value = px; $('fs2').value = px; }
+
+  // ---------- optional speech-recognition word matching ----------
+  let rec = null, recWanted = false, lastMatch = 0, hist = [], srStatus = '';
+  function onSpeech(transcript) {
+    const heard = transcript.split(/\s+/).map(normalize).filter(Boolean);
+    if (!heard.length) return;
+    const tail = heard.slice(-4);
+    const base = Math.floor(pos);
+    const lo = Math.max(0, base - 6), hi = Math.min(norm.length - 1, base + 18);
+    let best = -1, bestScore = 0;
+    for (let i = lo; i <= hi; i++) {
+      let score = 0;
+      for (let k = 0; k < tail.length; k++) {
+        const si = i - k, hw = tail[tail.length - 1 - k];
+        if (si < 0 || norm[si] !== hw) break;
+        score += 1 + Math.min(hw.length, 8) / 8;
+      }
+      if (score === 0 || (score < 2 && norm[i].length < 5)) continue;
+      const dist = Math.abs(i - (base + 1));
+      if (dist > 6 && score < 2.8) continue;                // far jumps need 2+ solid words in a row
+      const adj = score - dist * 0.1;
+      if (adj > bestScore) { bestScore = adj; best = i; }
+    }
+    if (best >= 0) {
+      lastMatch = performance.now();
+      if (best > anchor) {
+        const now = lastMatch / 1000;
+        hist.push([now, best]); hist = hist.filter(h => now - h[0] < 12);
+        if (hist.length > 2) {
+          const dt = hist[hist.length - 1][0] - hist[0][0], dw = hist[hist.length - 1][1] - hist[0][1];
+          if (dt > 2 && dw > 3) wpm = clamp(wpm * 0.8 + (dw / dt * 60) * 0.2, 60, 200);
+        }
+      }
+      anchor = best;
+    }
+  }
+  function startRec() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) { srStatus = 'word-match n/a'; return; }
+    rec = new SR(); rec.continuous = true; rec.interimResults = true; rec.lang = navigator.language || 'en-US';
+    rec.onresult = e => onSpeech(e.results[e.results.length - 1][0].transcript);
+    rec.onstart = () => { srStatus = 'word-match on'; };
+    rec.onerror = e => { srStatus = 'word-match off (' + e.error + ')'; if (/not-allowed|service/.test(e.error)) recWanted = false; };
+    rec.onend = () => { if (recWanted) setTimeout(() => { try { rec.start(); } catch {} }, 300); };
+    recWanted = true; try { rec.start(); } catch {}
+  }
+  function stopRec() { recWanted = false; try { rec && rec.stop(); } catch {} rec = null; }
+
+  // ---------- main loop ----------
+  const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+  function paceFromVoice(now) {
+    peaks = peaks.filter(t => now - t < 6000);
+    if (peaks.length >= 8 && now - lastMatch > 5000) {
+      const span = (peaks[peaks.length - 1] - peaks[0]) / 1000;
+      if (span > 2) {
+        const syl = (peaks.length - 1) / span;              // syllable-ish events per second
+        const est = syl * 60 / 1.45;                        // ~1.45 syllables per word
+        wpm = clamp(wpm * 0.97 + clamp(est, 90, 220) * 0.03, 60, 260);
+      }
+    }
+  }
+
+  function frame(t) {
+    raf = requestAnimationFrame(frame);
+    const dt = Math.min(0.1, (t - lastT) / 1000); lastT = t;
+    if (!paused) {
+      const now = performance.now();
+      if (followVoice) {
+        paceFromVoice(now);
+        const matched = now - lastMatch < 4000;
+        if (speaking) {
+          // never run more than a few words ahead of what speech recognition confirmed
+          if (!matched || pos < anchor + 5) pos += wpm / 60 * dt;
+        }
+        if (matched) {
+          const diff = anchor - pos;
+          const maxStep = wpm / 60 * dt * 4;                // catch up quickly but smoothly
+          if (diff > 1) pos += Math.min(diff - 1, maxStep);
+          else if (diff < -5) pos += Math.max(diff + 5, -maxStep);   // drifted ahead: ease back
+        }
+      } else pos += wpm / 60 * dt;
+      pos = clamp(pos, 0, words.length - 1);
+      if (now - lastMatch > 4000) anchor = Math.floor(pos);
+    }
+    updateHighlight();
+    const i = Math.floor(pos), f = pos - i;
+    const a = spans[i], b = spans[Math.min(i + 1, spans.length - 1)];
+    if (!a) return;
+    const y = a.offsetTop + (b.offsetTop - a.offsetTop) * f;
+    const target = y - $('view').clientHeight * 0.35;
+    scrollTop += (target - scrollTop) * Math.min(1, dt * 8);
+    $('text').style.transform = (mirror ? 'scaleX(-1) ' : '') + 'translateY(' + (-scrollTop) + 'px)';
+    $('stxt').textContent = Math.round(wpm) + ' WPM · ' + (speaking ? 'speaking' : 'quiet') + (srStatus ? ' · ' + srStatus : '');
+  }
+  function updateHighlight() {
+    const c = Math.min(words.length - 1, Math.floor(pos));
+    if (c === lastCur) return;
+    const from = Math.min(c, lastCur < 0 ? 0 : lastCur), to = Math.max(c, lastCur);
+    for (let i = Math.max(0, from - 1); i <= Math.min(words.length - 1, to + 1); i++)
+      spans[i].className = i < c ? 'read' : i === c ? 'cur' : '';
+    lastCur = c;
+  }
+
+  // ---------- controls ----------
+  async function begin() {
+    const text = $('script').value.trim();
+    if (!text) { $('micmsg').textContent = 'Paste a script first.'; return; }
+    store.set({ script: text, sens: $('sens').value, mic: $('mic').value });
+    followVoice = $('usemic').checked; mirror = $('mirror').checked;
+    if (followVoice && !(await openMic())) return;        // stay on setup so the error is visible
+    build(text); setFont(+$('fs').value);
+    wpm = +$('wpm').value || 150;
+    $('text').style.transformOrigin = 'center top';
+    $('setup').style.display = 'none'; $('prompter').style.display = 'block';
+    pos = anchor = 0; scrollTop = 0; lastCur = -1; hist = []; peaks = []; lastMatch = 0; paused = false; srStatus = '';
+    $('meterH').style.display = followVoice ? '' : 'none';
+    if (followVoice && $('usesr').checked) startRec();
+    cancelAnimationFrame(raf); lastT = performance.now(); raf = requestAnimationFrame(frame);
+    flashHud();
+  }
+  function end() {
+    stopRec(); cancelAnimationFrame(raf);
+    $('prompter').style.display = 'none'; $('setup').style.display = 'flex';
+    if (stream) { cancelAnimationFrame(meterRaf); meterLoop(); }
+  }
+  function restart() { pos = anchor = 0; scrollTop = 0; lastCur = -1; hist = []; spans.forEach(s => s.className = ''); }
+  function togglePause() { paused = !paused; $('pause').textContent = paused ? 'Resume (Space)' : 'Pause (Space)'; }
+  function nudge(n) { pos = anchor = clamp(Math.round(pos) + n, 0, words.length - 1); spans.forEach(s => s.className = ''); lastCur = -1; }
+  let hudT; function flashHud() { $('hud').classList.add('show'); clearTimeout(hudT); hudT = setTimeout(() => $('hud').classList.remove('show'), 3000); }
+
+  // phone controls + keep screen on
+  $('up').onclick = () => nudge(-8);
+  $('down').onclick = () => nudge(8);
+  $('slower').onclick = () => { wpm = Math.max(40, wpm - 10); };
+  $('faster').onclick = () => { wpm = Math.min(300, wpm + 10); };
+  document.addEventListener('pointerdown', e => { if ($('prompter').style.display === 'block' && e.pointerType === 'touch') flashHud(); });
+  let wake = null;
+  async function keepAwake() { try { if ('wakeLock' in navigator && $('prompter').style.display === 'block') wake = await navigator.wakeLock.request('screen'); } catch {} }
+  setInterval(() => { if (!wake || wake.released) keepAwake(); }, 4000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') keepAwake(); });
+
+  $('start').onclick = begin;
+  $('micTest').onclick = openMic;
+  $('mic').onchange = () => { store.set({ mic: $('mic').value }); if (stream) openMic(); };
+  $('sens').oninput = () => store.set({ sens: $('sens').value });
+  $('back').onclick = end;
+  $('pause').onclick = togglePause;
+  $('restart').onclick = restart;
+  $('fs2').oninput = e => setFont(+e.target.value);
+  document.addEventListener('mousemove', () => { if ($('prompter').style.display === 'block') flashHud(); });
+  document.addEventListener('keydown', e => {
+    if ($('prompter').style.display !== 'block') return;
+    if (e.code === 'Space') { e.preventDefault(); togglePause(); }
+    else if (e.key === 'ArrowUp') nudge(-8);
+    else if (e.key === 'ArrowDown') nudge(8);
+    else if (e.key === 'Home') restart();
+    else if (e.key === 'Escape') end();
+    else if (e.key === '+' || e.key === '=') wpm = Math.min(300, wpm + 10);
+    else if (e.key === '-') wpm = Math.max(40, wpm - 10);
+    else if (e.key === 'f' || e.key === 'F') document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+  });
+
+  // populate mic names if permission was granted previously
+  if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) listMics().catch(() => {});
+  drawMeters();
+})();
+</script>
+</body>
+</html>

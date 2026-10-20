@@ -36,7 +36,7 @@
   .meter.hot .bar { background:#ffd54a; }
   #micmsg { font-size:13px; color:#ff8a80; }
   #prompter { display:none; position:fixed; inset:0; }
-  #view { position:absolute; inset:0; overflow:hidden; }
+  #view { position:absolute; inset:0; overflow:hidden; touch-action:none; cursor:grab; user-select:none; -webkit-user-select:none; }
   #text { padding:40vh 8vw 60vh; line-height:1.5; font-weight:600; text-align:left; will-change:transform; }
   #text span { color:var(--dim); transition:color .2s; }
   #text span.read { color:var(--fg); }
@@ -66,6 +66,7 @@
   </div>
   <div class="row">
     <label id="sensl">Sensitivity <input id="sens" type="range" min="1" max="10" value="5"></label>
+    <label id="boostl">Mic boost <input id="boost" type="range" min="1" max="12" step="0.5" value="1"> <b id="boostv">1</b>&times;</label>
     <label>Font size <input id="fs" type="range" min="24" max="140" value="64"></label>
     <label><input id="mirror" type="checkbox"> Mirror</label>
     <label id="srlabel"><input id="usesr" type="checkbox" checked> Also match words (uses system default mic)</label>
@@ -88,6 +89,8 @@
     <button id="restart" class="sec">Restart (Home)</button>
     <span>Size <input id="fs2" type="range" min="24" max="140"></span>
     <button id="modeBtn" class="sec">Mode</button>
+    <span id="boostH">Mic <input id="boostHud" type="range" min="1" max="12" step="0.5" value="1"></span>
+    <span>Drag the text to scroll</span>
     <span>Speed <input id="wpmHud" type="range" min="40" max="300" step="5"> <b id="wpmHv"></b> WPM</span>
     <button id="up" class="sec">&uarr; Back</button>
     <button id="down" class="sec">&darr; Skip</button>
@@ -111,6 +114,8 @@
   if (saved.sens) $('sens').value = saved.sens;
   if (saved.mode) $('mode').value = saved.mode;
   if (saved.wpm) $('wpm').value = saved.wpm;
+  const isPhone = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform));
+  $('boost').value = saved.boost || (isPhone ? 5 : 1); $('boostHud').value = $('boost').value;
 
   // ---------- state ----------
   let words = [], norm = [], spans = [];
@@ -122,7 +127,7 @@
   let stream = null, actx = null, analyser = null, buf = null;
   let level = 0, floor = 0.003, speaking = false, lastLoud = 0;
   let peaks = [], envPrev = 0, envAvg = 0, lastPeak = 0, speakTime = 0;
-  let meterRaf = 0;
+  let meterRaf = 0, gainNode = null;
 
   const threshold = () => Math.max(0.05 / (+$('sens').value), floor * 2.5);
 
@@ -160,7 +165,8 @@
     if (actx.state === 'suspended') await actx.resume();
     const src = actx.createMediaStreamSource(stream);
     analyser = actx.createAnalyser(); analyser.fftSize = 1024;
-    src.connect(analyser);
+    gainNode = actx.createGain(); gainNode.gain.value = +$('boost').value;
+    src.connect(gainNode); gainNode.connect(analyser);
     buf = new Float32Array(analyser.fftSize);
     cancelAnimationFrame(meterRaf); meterLoop();
     return true;
@@ -169,7 +175,7 @@
     cancelAnimationFrame(meterRaf);
     if (stream) stream.getTracks().forEach(t => t.stop());
     if (actx) actx.close().catch(() => {});
-    stream = actx = analyser = null; level = 0; speaking = false; drawMeters();
+    stream = actx = analyser = gainNode = null; level = 0; speaking = false; drawMeters();
   }
 
   function sampleAudio(now) {
@@ -282,7 +288,7 @@
   function frame(t) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(0.1, (t - lastT) / 1000); lastT = t;
-    if (!paused) {
+    if (!paused && !drag) {
       const now = performance.now();
       if (followVoice) {
         paceFromVoice(now);
@@ -309,14 +315,15 @@
     if (!a) return;
     const y = a.offsetTop + (b.offsetTop - a.offsetTop) * f;
     const target = y - $('view').clientHeight * 0.35;
-    scrollTop += (target - scrollTop) * Math.min(1, dt * 8);
+    if (!drag) scrollTop += (target - scrollTop) * Math.min(1, dt * 8);
     $('text').style.transform = (mirror ? 'scaleX(-1) ' : '') + 'translateY(' + (-scrollTop) + 'px)';
     $('stxt').textContent = Math.round(wpm) + ' WPM · ' + (speaking ? 'speaking' : 'quiet') + (srStatus ? ' · ' + srStatus : '');
   }
   function updateHighlight() {
     const c = Math.min(words.length - 1, Math.floor(pos));
     if (c === lastCur) return;
-    const from = Math.min(c, lastCur < 0 ? 0 : lastCur), to = Math.max(c, lastCur);
+    const full = lastCur < 0 || Math.abs(c - lastCur) > 30;
+    const from = full ? 0 : Math.min(c, lastCur), to = full ? words.length - 1 : Math.max(c, lastCur);
     for (let i = Math.max(0, from - 1); i <= Math.min(words.length - 1, to + 1); i++)
       spans[i].className = i < c ? 'read' : i === c ? 'cur' : '';
     lastCur = c;
@@ -326,7 +333,7 @@
   async function begin() {
     const text = $('script').value.trim();
     if (!text) { $('micmsg').textContent = 'Paste a script first.'; return; }
-    store.set({ script: text, sens: $('sens').value, mic: $('mic').value, mode: $('mode').value, wpm: $('wpm').value });
+    store.set({ script: text, sens: $('sens').value, mic: $('mic').value, mode: $('mode').value, wpm: $('wpm').value, boost: $('boost').value });
     followVoice = $('mode').value === 'voice'; mirror = $('mirror').checked;
     if (followVoice && !(await openMic())) return;        // stay on setup so the error is visible
     build(text); setFont(+$('fs').value);
@@ -346,7 +353,7 @@
   }
   function restart() { pos = anchor = 0; scrollTop = 0; lastCur = -1; hist = []; spans.forEach(s => s.className = ''); }
   function togglePause() { paused = !paused; $('pause').textContent = paused ? 'Resume (Space)' : 'Pause (Space)'; }
-  function nudge(n) { pos = anchor = clamp(Math.round(pos) + n, 0, words.length - 1); spans.forEach(s => s.className = ''); lastCur = -1; }
+  function nudge(n) { setPos(clamp(Math.round(pos) + n, 0, words.length - 1)); }
   let hudT; function flashHud() { $('hud').classList.add('show'); clearTimeout(hudT); hudT = setTimeout(() => $('hud').classList.remove('show'), 3000); }
 
   // phone controls + keep screen on
@@ -363,6 +370,7 @@
   function syncUI() {
     $('modeBtn').textContent = followVoice ? 'Mode: Voice' : 'Mode: Auto-scroll';
     $('meterH').style.display = followVoice ? '' : 'none';
+    $('boostH').style.display = followVoice ? '' : 'none';
   }
   async function setMode(voice) {
     if (voice && !stream && !(await openMic())) return;
@@ -372,13 +380,49 @@
   }
   function syncSetup() {
     const a = $('mode').value === 'auto';
-    $('microw').hidden = a; $('sensl').hidden = a; $('srlabel').hidden = a;
+    $('microw').hidden = a; $('sensl').hidden = a; $('srlabel').hidden = a; $('boostl').hidden = a;
+    $('boostv').textContent = $('boost').value;
     $('wpmv').textContent = $('wpm').value;
   }
   $('mode').onchange = syncSetup;
   $('wpm').oninput = syncSetup;
   $('modeBtn').onclick = () => setMode(!followVoice);
   $('wpmHud').oninput = e => { wpm = +e.target.value; };
+
+  // ---- drag / wheel to scroll, then continue from that point ----
+  let drag = null;
+  const viewEl = $('view');
+  function clampScroll(v) {
+    const h = viewEl.clientHeight * 0.35;
+    return clamp(v, spans[0].offsetTop - h, spans[spans.length - 1].offsetTop - h);
+  }
+  function posFromScroll() {
+    const y = scrollTop + viewEl.clientHeight * 0.35;
+    let lo = 0, hi = spans.length - 1;
+    while (lo < hi) { const m = (lo + hi) >> 1; if (spans[m].offsetTop < y - 2) lo = m + 1; else hi = m; }
+    return lo;
+  }
+  function setPos(p) { pos = anchor = p; lastMatch = 0; hist = []; lastCur = -1; }
+  viewEl.addEventListener('pointerdown', e => {
+    if (!spans.length || (e.pointerType === 'mouse' && e.button !== 0)) return;
+    drag = { y: e.clientY }; try { viewEl.setPointerCapture(e.pointerId); } catch {}
+  });
+  viewEl.addEventListener('pointermove', e => {
+    if (!drag) return;
+    scrollTop = clampScroll(scrollTop - (e.clientY - drag.y)); drag.y = e.clientY;
+    pos = posFromScroll();
+  });
+  const endDrag = () => { if (drag) { drag = null; setPos(posFromScroll()); } };
+  viewEl.addEventListener('pointerup', endDrag);
+  viewEl.addEventListener('pointercancel', endDrag);
+  viewEl.addEventListener('wheel', e => {
+    if (!spans.length) return; e.preventDefault();
+    scrollTop = clampScroll(scrollTop + e.deltaY); setPos(posFromScroll());
+  }, { passive: false });
+
+  // ---- mic boost ----
+  $('boost').oninput = () => { if (gainNode) gainNode.gain.value = +$('boost').value; $('boostHud').value = $('boost').value; $('boostv').textContent = $('boost').value; store.set({ boost: $('boost').value }); };
+  $('boostHud').oninput = () => { $('boost').value = $('boostHud').value; $('boost').oninput(); };
 
   $('start').onclick = begin;
   $('micTest').onclick = openMic;
